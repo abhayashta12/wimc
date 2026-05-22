@@ -14,62 +14,105 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'YouTube API key not configured on server' });
   }
 
-  const countryNames = {
-    US:'United States',GB:'United Kingdom',CA:'Canada',AU:'Australia',
-    FR:'France',DE:'Germany',IT:'Italy',ES:'Spain',BR:'Brazil',MX:'Mexico',
-    IN:'India',JP:'Japan',KR:'South Korea',NG:'Nigeria',ZA:'South Africa',
-    AR:'Argentina',CO:'Colombia',NL:'Netherlands',SE:'Sweden',NO:'Norway',
-    PL:'Poland',PT:'Portugal',RU:'Russia',CN:'China',PH:'Philippines',
-    ID:'Indonesia',PK:'Pakistan',BD:'Bangladesh',EG:'Egypt',GH:'Ghana',
-    KE:'Kenya',TR:'Turkey',SA:'Saudi Arabia',AE:'UAE',NZ:'New Zealand',
-    SG:'Singapore',MY:'Malaysia',TH:'Thailand',VN:'Vietnam',CL:'Chile',
-    PE:'Peru',RO:'Romania',UA:'Ukraine',BE:'Belgium',CH:'Switzerland',
-    AT:'Austria',DK:'Denmark',FI:'Finland',IE:'Ireland',CZ:'Czech Republic',
-    HU:'Hungary',GR:'Greece',IL:'Israel',OTHER:'World'
+  const countryMusicStyle = {
+    IN: 'Bollywood Hindi',    PK: 'Pakistani Urdu',
+    BD: 'Bangla',             JP: 'J-Pop Japanese',
+    KR: 'K-Pop Korean',       CN: 'Chinese Mandopop',
+    FR: 'French pop',         DE: 'German pop',
+    IT: 'Italian pop',        ES: 'Spanish pop',
+    BR: 'Brazilian MPB',      MX: 'Mexican pop',
+    AR: 'Argentine pop',      CO: 'Colombian pop',
+    TR: 'Turkish pop',        RU: 'Russian pop',
+    PL: 'Polish pop',         NG: 'Nigerian Afrobeats',
+    GH: 'Ghanaian pop',       KE: 'Kenyan pop',
+    ZA: 'South African pop',  EG: 'Egyptian Arabic pop',
+    SA: 'Arabic pop',         AE: 'Arabic pop',
+    ID: 'Indonesian pop',     PH: 'OPM Filipino pop',
+    TH: 'Thai pop',           VN: 'Vietnamese V-pop',
+    MY: 'Malaysian pop',      SE: 'Swedish pop',
+    NO: 'Norwegian pop',      NL: 'Dutch pop',
+    PT: 'Portuguese pop',     RO: 'Romanian pop',
+    UA: 'Ukrainian pop',      GR: 'Greek pop',
+    IL: 'Israeli pop',        US: 'American pop',
+    GB: 'British pop',        CA: 'Canadian pop',
+    AU: 'Australian pop',     NZ: 'New Zealand pop',
+    IE: 'Irish pop',
   };
 
-  const countryName = countryNames[country] || 'World';
+  const date     = new Date(dateFrom);
+  const month    = date.toLocaleDateString('en-US', { month: 'long' });
+  const year     = date.getFullYear();
   const regionCode = tab === 'global' ? 'US' : (country === 'OTHER' ? 'US' : country);
+  const genre    = tab === 'global' ? 'pop' : (countryMusicStyle[country] || 'pop');
 
-  const date = new Date(dateFrom);
-  const month = date.toLocaleDateString('en-US', { month: 'long' });
-  const year = date.getFullYear();
+  const JUNK = [
+    /playlist/i, /compilation/i, /\bmix\b/i, /top \d+/i, /best of/i,
+    /\d+\s*songs/i, /\d+\s*hits/i, /nonstop/i, /non.stop/i, /jukebox/i,
+    /full album/i, /all songs/i, /collection/i, /\bvol\b/i,
+    /superhit/i, /super hit/i, /evergreen/i, /back.to.back/i,
+    /audio jukebox/i, /video jukebox/i, /medley/i, /mashup/i,
+    /\d{4}.*hits/i, /hits of \d{4}/i, /songs of \d{4}/i, /greatest hits/i,
+  ];
 
-  const query = tab === 'global'
-    ? `top music hits ${month} ${year}`
-    : `top music hits ${countryName} ${month} ${year}`;
+  function isJunk(title) {
+    return JUNK.some(p => p.test(title));
+  }
 
-  const afterDate = dateFrom + 'T00:00:00Z';
-  const beforeDate = dateTo + 'T23:59:59Z';
+  function score(title) {
+    let s = 0;
+    if (/official/i.test(title))         s += 4;
+    if (/music video/i.test(title))      s += 3;
+    if (/full video/i.test(title))       s += 2;
+    if (/lyric/i.test(title))            s += 2;
+    if (/audio/i.test(title))            s += 1;
+    if (new RegExp(`\\b${year}\\b`).test(title) && !/official/i.test(title)) s -= 1;
+    return s;
+  }
 
-  async function search(withDateFilter) {
-    let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoCategoryId=10&maxResults=4&regionCode=${regionCode}&key=${YOUTUBE_API_KEY}`;
-    if (withDateFilter) {
-      url += `&publishedAfter=${afterDate}&publishedBefore=${beforeDate}`;
-    }
+  const queries = tab === 'global'
+    ? [
+        `${genre} song "${month} ${year}" official music video`,
+        `${genre} hit song ${month} ${year} official`,
+        `${genre} song ${year} official music video`,
+      ]
+    : [
+        `${genre} song "${month} ${year}" official`,
+        `${genre} hit "${year}" official music video`,
+        `${genre} song ${year} official`,
+      ];
+
+  async function searchYT(q) {
+    const url = `https://www.googleapis.com/youtube/v3/search` +
+      `?part=snippet&q=${encodeURIComponent(q)}&type=video&videoCategoryId=10` +
+      `&maxResults=20&regionCode=${regionCode}&key=${YOUTUBE_API_KEY}`;
     const r = await fetch(url);
     return r.json();
   }
 
+  function process(items) {
+    if (!items || !items.length) return [];
+    return items
+      .filter(i => !isJunk(i.snippet.title))
+      .filter(i => !/jukebox|T-Series Hits|top \d+/i.test(i.snippet.channelTitle))
+      .sort((a, b) => score(b.snippet.title) - score(a.snippet.title))
+      .slice(0, 4)
+      .map(i => ({
+        videoId:     i.id.videoId,
+        title:       i.snippet.title,
+        channel:     i.snippet.channelTitle,
+        thumbnail:   i.snippet.thumbnails.medium?.url || i.snippet.thumbnails.default?.url,
+        publishedAt: i.snippet.publishedAt,
+      }));
+  }
+
   try {
-    let data = await search(true);
-
-    if (data.error || !data.items || data.items.length === 0) {
-      data = await search(false);
+    let videos = [];
+    for (const q of queries) {
+      if (videos.length >= 2) break;
+      const data = await searchYT(q);
+      if (data.error) return res.status(400).json({ error: data.error.message });
+      videos = process(data.items);
     }
-
-    if (data.error) {
-      return res.status(400).json({ error: data.error.message });
-    }
-
-    const videos = (data.items || []).map(item => ({
-      videoId: item.id.videoId,
-      title: item.snippet.title,
-      channel: item.snippet.channelTitle,
-      thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url,
-      publishedAt: item.snippet.publishedAt
-    }));
-
     return res.status(200).json({ videos });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to fetch videos: ' + err.message });

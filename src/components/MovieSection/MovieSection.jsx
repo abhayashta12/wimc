@@ -4,9 +4,9 @@ import { useFetch } from '../../hooks/useFetch'
 import { fetchMovie } from '../../utils/api'
 import s from './MovieSection.module.css'
 
-export default function MovieSection({ conceptionYear, conceptionMonth }) {
+export default function MovieSection({ conceptionYear, conceptionMonth, country }) {
   const { t } = useTranslation()
-  const fetcher = useCallback(() => fetchMovie(conceptionYear, conceptionMonth), [conceptionYear, conceptionMonth])
+  const fetcher = useCallback(() => fetchMovie(conceptionYear, conceptionMonth, country), [conceptionYear, conceptionMonth, country])
   const { data, loading, error, execute } = useFetch(fetcher)
 
   useEffect(() => { execute() }, [execute])
@@ -26,6 +26,7 @@ export default function MovieSection({ conceptionYear, conceptionMonth }) {
           : <div className={s.posterPlaceholder}>🎬</div>
         }
         <div>
+          {m.cinemaLabel && <div className={s.cinemaLabel}>{m.cinemaLabel}</div>}
           <div className={s.title}>{m.title}</div>
           <div className={s.meta}>
             <span>📅 {releaseFormatted}</span>

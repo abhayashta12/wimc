@@ -61,6 +61,7 @@ export default function App() {
               <MovieSection
                 conceptionYear={result.conception.getFullYear()}
                 conceptionMonth={result.conception.getMonth() + 1}
+                country={result.country}
               />
               <CelebSection
                 month={result.month}

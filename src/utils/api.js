@@ -5,8 +5,8 @@ export async function fetchMusic(dateFrom, dateTo, country, tab) {
   return res.json()
 }
 
-export async function fetchMovie(year, month) {
-  const params = new URLSearchParams({ year, month })
+export async function fetchMovie(year, month, country) {
+const params = new URLSearchParams({ year, month, country: country || 'US' })
   const res = await fetch(`/api/movies?${params}`)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()

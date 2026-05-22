@@ -77,3 +77,16 @@
   .layout { grid-template-columns: 110px 1fr; gap: 1rem; }
   .poster, .posterPlaceholder { width: 110px; }
 }
+
+.cinemaLabel {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  margin-bottom: 0.5rem;
+}
