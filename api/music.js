@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     return r.json();
   }
 
-  function process(items) {
+  function filterVideos(items) {
     if (!items || !items.length) return [];
     return items
       .filter(i => !isJunk(i.snippet.title))
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
       if (videos.length >= 2) break;
       const data = await searchYT(q);
       if (data.error) return res.status(400).json({ error: data.error.message });
-      videos = process(data.items);
+      videos = filterVideos(data.items);
     }
     return res.status(200).json({ videos });
   } catch (err) {
