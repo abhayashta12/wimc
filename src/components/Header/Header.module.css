@@ -1,0 +1,65 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border2);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.logoAccent {
+  color: var(--accent);
+  font-style: italic;
+}
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.langSelect {
+  appearance: none;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  outline: none;
+}
+
+.themeBtn {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.themeBtn:hover { background: var(--bg3); }
+
+@media (max-width: 540px) {
+  .header { padding: 1rem; }
+  .logo   { font-size: 1.05rem; }
+}

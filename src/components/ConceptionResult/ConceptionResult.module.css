@@ -1,0 +1,132 @@
+.bigDate {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 4.5vw, 2.6rem);
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+.rangeBox {
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--border);
+}
+
+.rangeBox strong { color: var(--text); font-weight: 500; }
+
+.cheeky {
+  font-size: 0.98rem;
+  color: var(--text2);
+  line-height: 1.7;
+  padding: 1rem 1.25rem;
+  background: var(--accent-light);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent2);
+  font-style: italic;
+  margin-bottom: 1.25rem;
+}
+
+.factsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+.factPill {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+}
+
+.factLabel {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 0.2rem;
+}
+
+.factValue {
+  font-size: 0.92rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Share */
+.shareRow {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+  transition: background var(--transition), transform 0.1s;
+  white-space: nowrap;
+}
+
+.shareBtn:hover  { background: var(--bg3); }
+.shareBtn:active { transform: scale(0.98); }
+
+.shareBtnPrimary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  box-shadow: 0 2px 10px rgba(200, 85, 61, 0.2);
+}
+
+.shareBtnPrimary:hover { opacity: 0.88; background: var(--accent); }
+
+/* Share card */
+.shareCard {
+  margin-top: 1.25rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--bg2) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  animation: fadeUp 0.3s ease;
+}
+
+.shareCardSite {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.shareCardDate {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.shareCardSub { font-size: 0.85rem; color: var(--text2); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 540px) {
+  .factsGrid { grid-template-columns: 1fr; }
+  .shareBtn  { padding: 0.5rem 0.75rem; font-size: 0.78rem; }
+}
