@@ -8,13 +8,10 @@ export function formatDate(date) {
 export function getConceptionDates(birthDate) {
   const conception = new Date(birthDate)
   conception.setDate(conception.getDate() - 266)
-
   const rangeStart = new Date(birthDate)
   rangeStart.setDate(rangeStart.getDate() - 280)
-
   const rangeEnd = new Date(birthDate)
   rangeEnd.setDate(rangeEnd.getDate() - 252)
-
   return { conception, rangeStart, rangeEnd }
 }
 
@@ -60,4 +57,46 @@ export function toISODate(date) {
 export function buildShareURL(month, day, year, country) {
   const base = typeof window !== 'undefined' ? window.location.origin : ''
   return `${base}?m=${month}&d=${day}&y=${year}&c=${country}`
+}
+
+// Returns a funny roast based on what day/date the conception fell on
+export function getSpecialDateRoast(date) {
+  const m = date.getMonth() + 1
+  const d = date.getDate()
+  const day = date.getDay() // 0=Sun, 1=Mon...5=Fri, 6=Sat
+
+  // Specific dates first
+  if (m === 2  && d === 14) return "Valentine's Day. So you were literally a Valentine's baby. Cringe. 💘"
+  if (m === 12 && d === 25) return "Christmas Day. Your parents couldn't even wait to open the presents. 🎄"
+  if (m === 12 && d === 31) return "New Year's Eve. Blame the alcohol. 🥂"
+  if (m === 1  && d === 1)  return "New Year's Day. Your parents started the year with a bang. Literally. 🎆"
+  if (m === 10 && d === 31) return "Halloween. Your parents were in costume and apparently very comfortable. 🎃"
+  if (m === 4  && d === 1)  return "April Fools' Day. And yet... here you are. No joke. 🃏"
+  if (m === 3  && d === 8)  return "International Women's Day. Make of that what you will. 💐"
+  if (m === 2  && d === 29) return "Leap Day. Your parents chose the rarest day of the year for this. Overachievers. 🐸"
+
+  // Day of week roasts
+  if (day === 1) return "A Monday. Your parents did this on a MONDAY. The most unromantic day of the week. 😐"
+  if (day === 2) return "A Tuesday. Not even the weekend. Your parents were not waiting around. 😅"
+  if (day === 3) return "Hump Day. Wednesday. The irony is not lost on us. 🐪"
+  if (day === 4) return "A Thursday. Almost the weekend but not quite. Your parents were impatient. 👀"
+  if (day === 5) return "Friday night. At least your parents had taste. 🍷"
+  if (day === 6) return "Saturday. Peak romance hours. Your parents were living their best life. 😌"
+  if (day === 0) return "A Sunday. Lazy Sunday energy. Very cozy. Very suspicious. ☕"
+
+  return null
+}
+
+// Returns how rare your conception month is (% of births = % of conceptions 9mo earlier)
+export function getConceptionRarity(date) {
+  const m = date.getMonth() + 1
+  // Approx % of conceptions per month based on birth statistics
+  const stats = {
+    1: 8.1, 2: 7.6, 3: 8.0, 4: 8.2, 5: 8.5, 6: 8.8,
+    7: 9.1, 8: 9.3, 9: 8.9, 10: 8.7, 11: 8.2, 12: 8.1
+  }
+  const pct = stats[m] || 8.3
+  if (pct >= 9.0) return { label: 'Peak baby-making season 🔥', pct }
+  if (pct <= 7.8) return { label: 'Rare conception month ✨', pct }
+  return { label: 'Pretty average timing 😄', pct }
 }
